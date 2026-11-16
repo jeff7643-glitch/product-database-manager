@@ -46,3 +46,9 @@ Example:
 sku,name,price,quantity,category,description
 MUG-001,Ceramic mug,12.50,30,Kitchen,Blue glazed ceramic mug
 ```
+
+## Render free-tier preview
+
+The repository includes a `render.yaml` Blueprint for a free web service and free PostgreSQL database. In Render, create a new Blueprint from this repository and review the resources before confirming. The Blueprint generates a `SECRET_KEY` and prompts for `ADMIN_PASSWORD_HASH`; provide a hash for a strong, unique password, not the local development password. The app initializes the schema and inserts the 20 sample products on startup; repeated starts leave existing sample SKUs unchanged.
+
+Render's free web service sleeps after 15 minutes without traffic. Its free PostgreSQL database expires after 30 days, has no backups, and is eventually deleted after the expiration grace period. Treat this as a temporary demo only; do not enter important or real customer data. A persistent free database requires a different provider or plan.

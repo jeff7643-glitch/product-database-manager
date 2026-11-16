@@ -23,6 +23,28 @@ PAGE_SIZE = 50
 MAX_IMPORT_ROWS = 5_000
 PRODUCT_FIELDS = ("sku", "name", "category", "description", "price", "quantity")
 CSV_FIELDS = ("sku", "name", "price", "quantity", "category", "description")
+SAMPLE_PRODUCTS = (
+    ("DEMO-001", "Ceramic Travel Mug", "Kitchen", "Double-wall ceramic mug with a splash-resistant lid.", Decimal("18.95"), 32),
+    ("DEMO-002", "Insulated Water Bottle", "Outdoor", "Stainless steel bottle that keeps drinks cold for hours.", Decimal("24.50"), 25),
+    ("DEMO-003", "Canvas Tote Bag", "Accessories", "Reusable natural-canvas tote with reinforced handles.", Decimal("12.00"), 48),
+    ("DEMO-004", "Hardcover Notebook", "Stationery", "Lined A5 notebook with 160 recycled-paper pages.", Decimal("8.50"), 60),
+    ("DEMO-005", "Adjustable Desk Lamp", "Home Office", "LED task lamp with adjustable brightness and angle.", Decimal("39.99"), 14),
+    ("DEMO-006", "Wireless Mouse", "Electronics", "Compact wireless mouse with an ergonomic shape.", Decimal("22.00"), 27),
+    ("DEMO-007", "Mechanical Keyboard", "Electronics", "Tenkeyless keyboard with tactile switches and USB-C.", Decimal("69.99"), 11),
+    ("DEMO-008", "USB-C Hub", "Electronics", "Six-port hub with HDMI, USB-A, and power pass-through.", Decimal("34.99"), 19),
+    ("DEMO-009", "Terracotta Plant Pot", "Garden", "Medium-sized terracotta pot with a drainage saucer.", Decimal("16.00"), 22),
+    ("DEMO-010", "Succulent Starter Plant", "Garden", "Low-maintenance succulent in a recyclable nursery pot.", Decimal("9.50"), 35),
+    ("DEMO-011", "Zippered Canvas Pouch", "Accessories", "Small multipurpose pouch for stationery or travel.", Decimal("14.25"), 31),
+    ("DEMO-012", "Cotton Kitchen Apron", "Kitchen", "Adjustable cotton apron with two front pockets.", Decimal("28.00"), 18),
+    ("DEMO-013", "Stainless Lunch Box", "Kitchen", "Leak-resistant lunch container with a removable divider.", Decimal("26.75"), 16),
+    ("DEMO-014", "Glass Storage Jar Set", "Kitchen", "Set of three clear glass jars with bamboo lids.", Decimal("21.99"), 20),
+    ("DEMO-015", "Woven Throw Blanket", "Home", "Soft woven throw blanket sized for a sofa or bed.", Decimal("79.00"), 8),
+    ("DEMO-016", "Cedarwood Candle", "Home", "Soy-wax candle with a warm cedarwood fragrance.", Decimal("19.50"), 24),
+    ("DEMO-017", "Cotton Bath Towel Set", "Home", "Two absorbent cotton bath towels in a neutral color.", Decimal("45.00"), 13),
+    ("DEMO-018", "Textured Yoga Mat", "Fitness", "Non-slip exercise mat with a comfortable cushioned surface.", Decimal("32.50"), 17),
+    ("DEMO-019", "Reusable Food Wraps", "Kitchen", "Set of three washable wraps for covering food and bowls.", Decimal("11.75"), 29),
+    ("DEMO-020", "Precision Screwdriver Kit", "Tools", "Compact 24-piece precision screwdriver set for small repairs.", Decimal("17.99"), 12),
+)
 
 
 def create_app():
@@ -58,6 +80,10 @@ def create_app():
             return session["_csrf_token"]
 
         return {"csrf_token": csrf_token}
+
+    @app.get("/healthz")
+    def health_check():
+        return {"status": "ok"}
 
     @app.errorhandler(psycopg.Error)
     def handle_database_error(error):
@@ -107,6 +133,23 @@ def create_app():
                 "CREATE INDEX IF NOT EXISTS products_category_name_idx ON products (category, name)"
             )
         print("Database initialized.")
+
+    @app.cli.command("seed-sample-products")
+    def seed_sample_products():
+        """Insert the sample catalog, leaving existing SKUs unchanged."""
+        with connect_db(app.config["DATABASE_URL"]) as connection:
+            inserted = 0
+            for product in SAMPLE_PRODUCTS:
+                result = connection.execute(
+                    """
+                    INSERT INTO products (sku, name, category, description, price, quantity)
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                    ON CONFLICT (sku) DO NOTHING
+                    """,
+                    product,
+                )
+                inserted += result.rowcount
+        print(f"Seeded {inserted} sample products.")
 
     @app.route("/login", methods=("GET", "POST"))
     def login():

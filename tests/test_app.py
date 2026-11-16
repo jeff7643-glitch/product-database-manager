@@ -85,6 +85,11 @@ class AuthenticationTests(unittest.TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertIn("/login", response.location)
 
+    def test_health_check_is_public(self):
+        response = self.client.get("/healthz")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json, {"status": "ok"})
+
 
 if __name__ == "__main__":
     unittest.main()
