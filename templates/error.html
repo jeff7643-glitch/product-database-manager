@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Database error · Product catalog{% endblock %}
+{% block content %}
+  <section class="panel narrow">
+    <h1>Database unavailable</h1>
+    <p>{{ message }}</p>
+    <a class="button secondary" href="{{ url_for('products') }}">Back to products</a>
+  </section>
+{% endblock %}

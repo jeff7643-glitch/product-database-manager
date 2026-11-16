@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Import CSV · Product catalog{% endblock %}
+{% block content %}
+  <section class="panel form-panel">
+    <h1>Import products from CSV</h1>
+    <p class="muted">Required columns: <code>sku</code>, <code>name</code>, <code>price</code>. Optional: <code>quantity</code>, <code>category</code>, <code>description</code>. Existing SKUs are rejected; the entire import is rolled back if a row is invalid or duplicated.</p>
+    {% if error %}<div class="notice notice-error" role="alert">{{ error }}</div>{% endif %}
+    {% if errors %}
+      <div class="notice notice-error" role="alert">
+        <strong>Nothing was imported. Fix these CSV issues and try again:</strong>
+        <ul>{% for item in errors %}<li>{{ item }}</li>{% endfor %}</ul>
+      </div>
+    {% endif %}
+    <form method="post" enctype="multipart/form-data">
+      <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+      <label for="file">CSV file</label>
+      <input id="file" name="file" type="file" accept=".csv,text/csv" required>
+      <p class="muted small">UTF-8 CSV, up to 5 MB and 5,000 rows.</p>
+      <div class="actions form-actions">
+        <button class="primary" type="submit">Validate and import</button>
+        <a class="button secondary" href="{{ url_for('products') }}">Cancel</a>
+      </div>
+    </form>
+  </section>
+{% endblock %}

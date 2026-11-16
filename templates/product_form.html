@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if editing else 'Add' }} product · Product catalog{% endblock %}
+{% block content %}
+  <section class="panel form-panel">
+    <h1>{{ 'Edit product' if editing else 'Add product' }}</h1>
+    <form method="post">
+      <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+      <div class="form-grid">
+        <div>
+          <label for="sku">SKU <span class="required">*</span></label>
+          <input id="sku" name="sku" maxlength="64" required value="{{ product.get('sku', '') }}">
+          {% if errors.get('sku') %}<span class="field-error">{{ errors.sku }}</span>{% endif %}
+        </div>
+        <div>
+          <label for="name">Name <span class="required">*</span></label>
+          <input id="name" name="name" maxlength="200" required value="{{ product.get('name', '') }}">
+          {% if errors.get('name') %}<span class="field-error">{{ errors.name }}</span>{% endif %}
+        </div>
+        <div>
+          <label for="category">Category</label>
+          <input id="category" name="category" maxlength="100" value="{{ product.get('category', '') }}">
+          {% if errors.get('category') %}<span class="field-error">{{ errors.category }}</span>{% endif %}
+        </div>
+        <div>
+          <label for="price">Price <span class="required">*</span></label>
+          <input id="price" name="price" type="number" min="0" step="0.01" required value="{{ product.get('price', '') }}">
+          {% if errors.get('price') %}<span class="field-error">{{ errors.price }}</span>{% endif %}
+        </div>
+        <div>
+          <label for="quantity">Quantity</label>
+          <input id="quantity" name="quantity" type="number" min="0" step="1" value="{{ product.get('quantity', 0) }}">
+          {% if errors.get('quantity') %}<span class="field-error">{{ errors.quantity }}</span>{% endif %}
+        </div>
+        <div class="full-width">
+          <label for="description">Description</label>
+          <textarea id="description" name="description" rows="4" maxlength="2000">{{ product.get('description', '') }}</textarea>
+          {% if errors.get('description') %}<span class="field-error">{{ errors.description }}</span>{% endif %}
+        </div>
+      </div>
+      <div class="actions form-actions">
+        <button class="primary" type="submit">{{ 'Save changes' if editing else 'Add product' }}</button>
+        <a class="button secondary" href="{{ url_for('products') }}">Cancel</a>
+      </div>
+    </form>
+  </section>
+{% endblock %}
